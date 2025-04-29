@@ -51,7 +51,7 @@ export function Sidebar() {
               </div>
             </div>
           </Button>
-          {/* <Cnw></Cnw> */}
+          <Cnw></Cnw>
         </div>
       </div>
     </div>

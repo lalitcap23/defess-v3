@@ -1,67 +1,74 @@
 "use client"
 
-import { Search, Settings, Laugh } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import React, { useEffect, useState } from "react";
+import { checkConnection, retrievePublicKey } from "./freighter";
+// import { addtoDb } from "@/actions/user";
+//import { fetchFeedback } from "./SmartContractInteraction";
 
-export function TrendingSection() {
-  const hallOfFameStories = [
-    {
-      title: "🧻 ToiletCoin Rugged",
-      description: "Promised bathroom on Mars. CEO vanished mid flush.",
-      likes: "8 shames"
-    },
-    {
-      title: "🥩 SteakSwap Exit",
-      description: "Devs ran off after meat emojis pumped the chart.",
-      likes: "5 shames"
-    },
-    {
-      title: "📦 BoxChain Crash",
-      description: "Literally just boxes. Raised $4M. Still no utility.",
-      likes: "2 shames"
-    },
-    {
-      title: "🛸 AlienYieldFarm",
-      description: "Claimed aliens backed the token. Community believed it.",
-      likes: "0 shames"
+const Header = ({ setPubKey  } : {setPubKey : any}) => {
+  const [connect, getConnected] = useState("Connect");
+  const [publickey, getPublicKey] = useState();
+  const [open, setOpen] = useState(false);
+
+  const handleOpenMenu = () => setOpen(!open);
+
+  useEffect(() => {
+    if (publickey !== "") {
+      getConnected("Connected!");
+      setPubKey(publickey);
+     // fetchFeedback(publickey, 1);
     }
-  ]
+  }, [publickey]);
 
-  return (
-    <div className="w-80 sticky top-0 h-screen p-4 hidden lg:block">
-      <div className="space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input placeholder="Search" className="pl-10 bg-muted rounded-full" />
-        </div>
+  const connectWallet = async () => {
+    if (await checkConnection()) {
+      const key = await retrievePublicKey() as string
+      console.log(key)
+      //@ts-ignore
+      getPublicKey(key.address);
 
-        <div className="bg-muted rounded-xl p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-xl flex items-center gap-2">
-              <Laugh className="h-5 w-5 text-yellow-500" />
-              Hall of Fame
-            </h2>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Settings className="h-5 w-5" />
-            </Button>
-          </div>
+      //@ts-ignore
+      const res = await addtoDb(key.address);
 
-          <div className="space-y-4">
-            {hallOfFameStories.map((story, index) => (
-              <div key={index} className="hover:bg-background/50 p-2 rounded-lg cursor-pointer">
-                <p className="font-bold">{story.title}</p>
-                <p className="text-sm text-muted-foreground">{story.description}</p>
-                <p className="text-xs text-muted-foreground">{story.likes}</p>
-              </div>
-            ))}
-          </div>
+      if(!res || res.status == 400) {
+        alert(res?.msg)
+      } else {
+        alert(res.msg)
+      }
+    }
+  };
 
-          <Button variant="ghost" className="text-primary w-full justify-start mt-2">
-            Show more
-          </Button>
-        </div>
+  // Format the public key with ellipsis in the middle
+  const formatPublicKey = () => {
+    //@ts-ignore
+    if (!publickey || publickey.length === 0) {
+    console.log("error 1")
+      return "";
+    }
+    //@ts-ignore
+    if (publickey.length <= 8) {
+      return publickey;
+    }
+    //@ts-ignore
+    return `${publickey.substring(0, 4)}...${publickey.substring(publickey.length - 4)}`;
+  };
+
+  return (<div className="flex justify-end items-center gap-4 p-3">
+    {publickey && (
+      <div className="bg-gray-100 rounded-lg px-3 py-2 text-sm flex items-center border border-gray-200">
+        <span className="text-gray-600 font-medium mr-2">Address:</span>
+        <span className="text-gray-800 truncate max-w-[140px]">{formatPublicKey()}</span>
       </div>
-    </div>
-  )
-}
+    )}
+    
+    <button
+      className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+      onClick={connectWallet}
+    >
+      {connect}
+    </button>
+  </div>
+  );
+};
+
+export default Header;
