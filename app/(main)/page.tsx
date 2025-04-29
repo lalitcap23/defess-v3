@@ -6,12 +6,20 @@ import { TweetFeed } from "@/components/tweet-feed"
 import { ComposeTweet } from "@/components/compose-tweet"
 import { Login } from "@/components/login"
 
+interface Comment {
+  id: string
+  content: string
+  username: string
+  timestamp: string
+}
+
 interface Post {
   _id: string
   content: string
   username: string
   likes: number
   createdAt: string
+  comments?: Comment[]
 }
 
 export default function Home() {
@@ -67,6 +75,26 @@ export default function Home() {
     }
   }
 
+  const handleComment = async (postId: string, content: string) => {
+    if (!username) return
+
+    try {
+      const response = await fetch(`/api/posts/${postId}/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content, username }),
+      })
+      const updatedPost = await response.json()
+      setPosts(posts.map(post => 
+        post._id === postId ? updatedPost : post
+      ))
+    } catch (error) {
+      console.error('Error adding comment:', error)
+    }
+  }
+
   const handleLogin = (username: string) => {
     setUsername(username)
   }
@@ -82,11 +110,11 @@ export default function Home() {
         ) : (
           <>
             <div className="p-4 border-b border-border">
-              <p className="text-sm text-gray-500">Logged in as: <span className="font-medium text-gray-700">{username}</span></p>
+              <p className="text-sm text-muted-foreground">Logged in as: <span className="font-medium text-foreground">{username}</span></p>
             </div>
             <ComposeTweet onTweet={handleAddPost} />
             {isLoading ? (
-              <div className="p-4 text-center">Loading posts...</div>
+              <div className="p-4 text-center text-muted-foreground">Loading posts...</div>
             ) : (
               <TweetFeed 
                 tweets={posts.map(post => ({
@@ -94,9 +122,11 @@ export default function Home() {
                   content: post.content,
                   username: post.username,
                   likes: post.likes,
-                  timestamp: new Date(post.createdAt)
+                  timestamp: new Date(post.createdAt),
+                  comments: post.comments
                 }))} 
-                onLike={handleLikePost} 
+                onLike={handleLikePost}
+                onComment={handleComment}
               />
             )}
           </>
@@ -105,4 +135,3 @@ export default function Home() {
     </Layout>
   )
 }
-    
