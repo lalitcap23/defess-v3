@@ -7,18 +7,30 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = params;
+    
     await connectDB();
-    const post = await Post.findById(params.id);
+    
+    const post = await Post.findById(id);
     
     if (!post) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
     }
-
+    
+    // Simply increment the like count
     post.likes += 1;
+    
     await post.save();
     
     return NextResponse.json(post);
   } catch (error) {
-    return NextResponse.json({ error: 'Error liking post' }, { status: 500 });
+    console.error('Error liking post:', error);
+    return NextResponse.json(
+      { error: 'Failed to like post' },
+      { status: 500 }
+    );
   }
 } 
