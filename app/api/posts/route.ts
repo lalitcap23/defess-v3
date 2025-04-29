@@ -2,23 +2,38 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db/mongodb';
 import Post from '@/lib/models/Post';
 
+// In a real application, you would use a database
+let posts: any[] = [];
+
 export async function GET() {
-  try {
-    await connectDB();
-    const posts = await Post.find().sort({ createdAt: -1 });
-    return NextResponse.json(posts);
-  } catch (error) {
-    return NextResponse.json({ error: 'Error fetching posts' }, { status: 500 });
-  }
+  return NextResponse.json(posts);
 }
 
 export async function POST(request: Request) {
   try {
-    const { content } = await request.json();
-    await connectDB();
-    const post = await Post.create({ content });
-    return NextResponse.json(post);
+    const { content, username } = await request.json();
+    
+    if (!content || !username) {
+      return NextResponse.json(
+        { error: 'Content and username are required' },
+        { status: 400 }
+      );
+    }
+
+    const newPost = {
+      _id: Date.now().toString(),
+      content,
+      username,
+      likes: 0,
+      createdAt: new Date().toISOString()
+    };
+
+    posts.unshift(newPost);
+    return NextResponse.json(newPost);
   } catch (error) {
-    return NextResponse.json({ error: 'Error creating post' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Invalid request' },
+      { status: 400 }
+    );
   }
 } 

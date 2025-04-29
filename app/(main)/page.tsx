@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { Layout } from "@/components/layout"
 import { TweetFeed } from "@/components/tweet-feed"
 import { ComposeTweet } from "@/components/compose-tweet"
+import { Login } from "@/components/login"
 
 interface Post {
   _id: string
   content: string
+  username: string
   likes: number
   createdAt: string
 }
@@ -15,6 +17,7 @@ interface Post {
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [username, setUsername] = useState<string | null>(null)
 
   useEffect(() => {
     fetchPosts()
@@ -33,13 +36,15 @@ export default function Home() {
   }
 
   const handleAddPost = async (content: string) => {
+    if (!username) return
+
     try {
       const response = await fetch('/api/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, username }),
       })
       const newPost = await response.json()
       setPosts([newPost, ...posts])
@@ -62,27 +67,42 @@ export default function Home() {
     }
   }
 
+  const handleLogin = (username: string) => {
+    setUsername(username)
+  }
+
   return (
     <Layout>
       <div className="flex-1 border-x border-border max-w-2xl">
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
           <h1 className="text-xl font-bold p-4">Home</h1>
         </div>
-        <ComposeTweet onTweet={handleAddPost} />
-        {isLoading ? (
-          <div className="p-4 text-center">Loading posts...</div>
+        {!username ? (
+          <Login onLogin={handleLogin} />
         ) : (
-          <TweetFeed 
-            tweets={posts.map(post => ({
-              id: post._id,
-              content: post.content,
-              likes: post.likes,
-              timestamp: new Date(post.createdAt)
-            }))} 
-            onLike={handleLikePost} 
-          />
+          <>
+            <div className="p-4 border-b border-border">
+              <p className="text-sm text-gray-500">Logged in as: <span className="font-medium text-gray-700">{username}</span></p>
+            </div>
+            <ComposeTweet onTweet={handleAddPost} />
+            {isLoading ? (
+              <div className="p-4 text-center">Loading posts...</div>
+            ) : (
+              <TweetFeed 
+                tweets={posts.map(post => ({
+                  id: post._id,
+                  content: post.content,
+                  username: post.username,
+                  likes: post.likes,
+                  timestamp: new Date(post.createdAt)
+                }))} 
+                onLike={handleLikePost} 
+              />
+            )}
+          </>
         )}
       </div>
     </Layout>
   )
 }
+    
