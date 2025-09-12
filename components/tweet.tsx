@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { motion, AnimatePresence } from "framer-motion"
 import { useAppWallet } from "@/contexts/WalletContext"
+import Link from "next/link"
 
 interface Comment {
   id: string
@@ -88,16 +89,20 @@ export function Tweet({ tweet, onLike, onComment }: TweetProps) {
     >
       <div className="flex">
         <div className="mr-4">
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            className="w-12 h-12 rounded-full bg-gradient-to-r from-accent to-purple-900 flex items-center justify-center"
-          >
-            <User className="h-6 w-6 text-primary" />
-          </motion.div>
+          <Link href={`/profile/${tweet.username}`}>
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              className="w-12 h-12 rounded-full bg-gradient-to-r from-accent to-purple-900 flex items-center justify-center cursor-pointer transition-transform"
+            >
+              <User className="h-6 w-6 text-primary" />
+            </motion.div>
+          </Link>
         </div>
         <div className="flex-1">
           <div className="flex items-center">
-            <span className="font-bold text-sm">{tweet.username}</span>
+            <Link href={`/profile/${tweet.username}`} className="hover:underline">
+              <span className="font-bold text-sm">{tweet.username}</span>
+            </Link>
             <span className="text-muted-foreground text-sm ml-2">@{tweet.username} · {timeAgo}</span>
           </div>
 
