@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { Trophy, User, Heart, Share, MessageCircle, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { motion, AnimatePresence } from "framer-motion"
+import { useWallet } from "@/contexts/WalletContext"
 
 interface Comment {
   id: string
@@ -18,6 +19,7 @@ interface TweetProps {
   tweet: {
     id: string
     content: string
+    username: string
     likes: number
     timestamp: Date
     comments?: Comment[]
@@ -29,7 +31,48 @@ interface TweetProps {
 export function Tweet({ tweet, onLike, onComment }: TweetProps) {
   const [isCommenting, setIsCommenting] = useState(false)
   const [commentText, setCommentText] = useState("")
+  const [isLiked, setIsLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(tweet.likes)
+  const { username } = useWallet()
   const timeAgo = formatDistanceToNow(new Date(tweet.timestamp), { addSuffix: true })
+
+  // Check if current user has liked this post
+  useEffect(() => {
+    if (username) {
+      fetch(`/api/posts/${tweet.id}/like-status?username=${username}`)
+        .then(res => res.json())
+        .then(data => setIsLiked(data.isLiked))
+        .catch(err => console.error('Error checking like status:', err))
+    }
+  }, [tweet.id, username])
+
+  const handleLike = async () => {
+    if (!username) {
+      alert('Please connect your wallet first!')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/posts/${tweet.id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username }),
+      })
+
+      if (response.ok) {
+        const updatedPost = await response.json()
+        setLikeCount(updatedPost.likes)
+        setIsLiked(updatedPost.isLiked)
+        onLike() // Call parent callback to refresh feed if needed
+      } else {
+        console.error('Failed to toggle like')
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error)
+    }
+  }
 
   const handleComment = () => {
     if (commentText.trim() && onComment) {
@@ -54,8 +97,8 @@ export function Tweet({ tweet, onLike, onComment }: TweetProps) {
         </div>
         <div className="flex-1">
           <div className="flex items-center">
-            <span className="font-bold text-sm">Anonymous</span>
-            <span className="text-muted-foreground text-sm ml-2">@anonymous · {timeAgo}</span>
+            <span className="font-bold text-sm">{tweet.username}</span>
+            <span className="text-muted-foreground text-sm ml-2">@{tweet.username} · {timeAgo}</span>
           </div>
 
           <div className="mt-2 text-[15px] leading-relaxed">{tweet.content}</div>
@@ -64,11 +107,19 @@ export function Tweet({ tweet, onLike, onComment }: TweetProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="rounded-full hover:text-red-400 hover:bg-red-400/10 group"
-              onClick={onLike}
+              className={`rounded-full group transition-all ${
+                isLiked 
+                  ? 'text-red-500 hover:text-red-600 hover:bg-red-400/10' 
+                  : 'hover:text-red-400 hover:bg-red-400/10'
+              }`}
+              onClick={handleLike}
             >
-              <Heart className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-              <span className="text-xs">{tweet.likes}</span>
+              <Heart 
+                className={`h-4 w-4 mr-2 group-hover:scale-110 transition-transform ${
+                  isLiked ? 'fill-current' : ''
+                }`} 
+              />
+              <span className="text-xs">{likeCount}</span>
             </Button>
             
             <Button

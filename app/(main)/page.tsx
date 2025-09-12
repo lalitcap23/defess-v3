@@ -4,7 +4,9 @@ import { useState, useEffect } from "react"
 import { Layout } from "@/components/layout"
 import { TweetFeed } from "@/components/tweet-feed"
 import { ComposeTweet } from "@/components/compose-tweet"
-import { Login } from "@/components/login"
+import SolanaConnectButton from "@/components/solana-connect-button"
+import { useUser } from "@/contexts/WalletContext"
+import { Loader2 } from "lucide-react"
 
 interface Comment {
   id: string
@@ -25,7 +27,7 @@ interface Post {
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [username, setUsername] = useState<string | null>(null)
+  const { user, isLoading: userLoading } = useUser()
 
   useEffect(() => {
     fetchPosts()
@@ -44,7 +46,7 @@ export default function Home() {
   }
 
   const handleAddPost = async (content: string) => {
-    if (!username) return
+    if (!user) return
 
     try {
       const response = await fetch('/api/posts', {
@@ -52,7 +54,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content, username }),
+        body: JSON.stringify({ content, username: user.username }),
       })
       const newPost = await response.json()
       setPosts([newPost, ...posts])
@@ -62,21 +64,30 @@ export default function Home() {
   }
 
   const handleLikePost = async (id: string) => {
+    if (!user) return
+
     try {
       const response = await fetch(`/api/posts/${id}/like`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: user.username }),
       })
-      const updatedPost = await response.json()
-      setPosts(posts.map(post => 
-        post._id === id ? updatedPost : post
-      ))
+      
+      if (response.ok) {
+        const updatedPost = await response.json()
+        setPosts(posts.map(post => 
+          post._id === id ? { ...post, likes: updatedPost.likes } : post
+        ))
+      }
     } catch (error) {
-      console.error('Error liking post:', error)
+      console.error('Error toggling like:', error)
     }
   }
 
   const handleComment = async (postId: string, content: string) => {
-    if (!username) return
+    if (!user) return
 
     try {
       const response = await fetch(`/api/posts/${postId}/comment`, {
@@ -84,7 +95,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content, username }),
+        body: JSON.stringify({ content, username: user.username }),
       })
       const updatedPost = await response.json()
       setPosts(posts.map(post => 
@@ -95,23 +106,40 @@ export default function Home() {
     }
   }
 
-  const handleLogin = (username: string) => {
-    setUsername(username)
+  if (userLoading) {
+    return (
+      <Layout>
+        <div className="flex-1 border-x border-border max-w-2xl">
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+            <span className="ml-2 text-sm text-gray-600">Loading...</span>
+          </div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
     <Layout>
       <div className="flex-1 border-x border-border max-w-2xl">
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
-          <h1 className="text-xl font-bold p-4">Home</h1>
+          <h1 className="text-xl font-bold p-4">Defess v3</h1>
         </div>
-        {!username ? (
-          <Login onLogin={handleLogin} />
+        
+        {/* Wallet Connection Section */}
+        <div className="p-4 border-b border-border">
+          <SolanaConnectButton />
+        </div>
+
+        {!user ? (
+          <div className="p-8 text-center">
+            <h2 className="text-lg font-semibold mb-2">Connect Your Wallet</h2>
+            <p className="text-muted-foreground mb-4">
+              Connect your Solana wallet and choose a username to start posting on Defess
+            </p>
+          </div>
         ) : (
           <>
-            <div className="p-4 border-b border-border">
-              <p className="text-sm text-muted-foreground">Logged in as: <span className="font-medium text-foreground">{username}</span></p>
-            </div>
             <ComposeTweet onTweet={handleAddPost} />
             {isLoading ? (
               <div className="p-4 text-center text-muted-foreground">Loading posts...</div>
@@ -123,7 +151,10 @@ export default function Home() {
                   username: post.username,
                   likes: post.likes,
                   timestamp: new Date(post.createdAt),
-                  comments: post.comments
+                  comments: post.comments?.map(comment => ({
+                    ...comment,
+                    timestamp: new Date(comment.timestamp)
+                  }))
                 }))} 
                 onLike={handleLikePost}
                 onComment={handleComment}

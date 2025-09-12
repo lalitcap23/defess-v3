@@ -3,20 +3,29 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { Tweet } from "@/components/tweet"
 
+interface Comment {
+  id: string
+  content: string
+  username: string
+  timestamp: Date
+}
+
 interface Tweet {
   id: string
   content: string
   username: string
   likes: number
   timestamp: Date
+  comments?: Comment[]
 }
 
 interface TweetFeedProps {
   tweets: Tweet[]
   onLike: (id: string) => void
+  onComment?: (postId: string, content: string) => void
 }
 
-export function TweetFeed({ tweets, onLike }: TweetFeedProps) {
+export function TweetFeed({ tweets, onLike, onComment }: TweetFeedProps) {
   return (
     <div className="divide-y divide-border/50">
       <AnimatePresence>
@@ -29,7 +38,11 @@ export function TweetFeed({ tweets, onLike }: TweetFeedProps) {
             transition={{ delay: index * 0.1 }}
             className="group"
           >
-            <Tweet tweet={tweet} onLike={() => onLike(tweet.id)} />
+            <Tweet 
+              tweet={tweet} 
+              onLike={() => onLike(tweet.id)} 
+              onComment={onComment}
+            />
           </motion.div>
         ))}
       </AnimatePresence>
