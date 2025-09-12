@@ -6,7 +6,7 @@ import { Trophy, User, Heart, Share, MessageCircle, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { motion, AnimatePresence } from "framer-motion"
-import { useWallet } from "@/contexts/WalletContext"
+import { useAppWallet } from "@/contexts/WalletContext"
 
 interface Comment {
   id: string
@@ -33,7 +33,7 @@ export function Tweet({ tweet, onLike, onComment }: TweetProps) {
   const [commentText, setCommentText] = useState("")
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(tweet.likes)
-  const { username } = useWallet()
+  const { username } = useAppWallet()
   const timeAgo = formatDistanceToNow(new Date(tweet.timestamp), { addSuffix: true })
 
   // Check if current user has liked this post

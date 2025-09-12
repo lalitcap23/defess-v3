@@ -4,15 +4,19 @@ import { Home, Mail, User, MoreHorizontal, Hash, Feather, Info, Trophy, LogOut, 
 import { Button } from "@/components/ui/button"
 import Cnw from "@/components/wallet-button"
 import { motion } from "framer-motion"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export function Sidebar() {
+  const pathname = usePathname()
+  
   const menuItems = [
-    { icon: Home, label: "Home", active: true },
-    { icon: Hash, label: "Explore", badge: "New" },
-    { icon: Trophy, label: "Hall of shame", badge: "4" },
-    { icon: User, label: "Profile" },
-    { icon: Settings, label: "Settings" },
-    { icon: Info, label: "About" },
+    { icon: Home, label: "Home", href: "/", active: pathname === "/" },
+    { icon: Hash, label: "Explore", href: "/explore", badge: "New", active: pathname === "/explore" },
+    { icon: Trophy, label: "Hall of shame", href: "/leaderboard", badge: "4", active: pathname === "/leaderboard" },
+    { icon: User, label: "Profile", href: "/profile", active: pathname === "/profile" },
+    { icon: Settings, label: "Settings", href: "/settings", active: pathname === "/settings" },
+    { icon: Info, label: "About", href: "/about", active: pathname === "/about" },
   ]
 
   return (
@@ -37,22 +41,24 @@ export function Sidebar() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Button
-                  variant={item.active ? "default" : "ghost"}
-                  className={`w-full justify-between text-lg font-medium group ${
-                    item.active ? "bg-primary/10 text-primary hover:bg-primary/20" : ""
-                  }`}
-                >
-                  <span className="flex items-center">
-                    <item.icon className="mr-4 h-5 w-5" />
-                    {item.label}
-                  </span>
-                  {item.badge && (
-                    <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
-                      {item.badge}
+                <Link href={item.href} className="block">
+                  <Button
+                    variant={item.active ? "default" : "ghost"}
+                    className={`w-full justify-between text-lg font-medium group ${
+                      item.active ? "bg-primary/10 text-primary hover:bg-primary/20" : ""
+                    }`}
+                  >
+                    <span className="flex items-center">
+                      <item.icon className="mr-4 h-5 w-5" />
+                      {item.label}
                     </span>
-                  )}
-                </Button>
+                    {item.badge && (
+                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
               </motion.div>
             ))}
           </nav>

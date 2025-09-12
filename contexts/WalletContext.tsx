@@ -39,8 +39,8 @@ export const useUser = () => {
   return context
 }
 
-// Custom hook that combines Solana wallet and user context
-export const useWallet = () => {
+// Custom hook that combines Solana wallet and user context  
+export const useAppWallet = () => {
   const solanaWallet = useSolanaWallet()
   const userContext = useUser()
   
