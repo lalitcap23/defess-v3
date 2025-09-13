@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { Layout } from "@/components/layout"
 import { TweetFeed } from "@/components/tweet-feed"
 import { useUser } from "@/contexts/WalletContext"
-import { ArrowLeft, CalendarDays, MessageSquare, Heart, Users, Trophy, Star, ExternalLink, UserPlus, UserMinus } from "lucide-react"
+import { ArrowLeft, CalendarDays, MessageSquare, Heart, Users, Trophy, Star, ExternalLink, UserPlus, UserMinus, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -44,6 +44,7 @@ interface NFT {
 interface UserProfile {
   id: string
   username: string
+  wallet_address: string
   display_name?: string
   bio?: string
   avatar_url?: string
@@ -293,6 +294,21 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <p className="text-muted-foreground">@{profileUser.username}</p>
+                {profileUser.wallet_address && (
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Wallet className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground font-mono">
+                      {profileUser.wallet_address.slice(0, 8)}...{profileUser.wallet_address.slice(-8)}
+                    </span>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(profileUser.wallet_address)}
+                      className="text-xs text-blue-500 hover:text-blue-400 ml-1"
+                      title="Copy wallet address"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                )}
                 {profileUser.bio && (
                   <p className="mt-2 text-sm">{profileUser.bio}</p>
                 )}

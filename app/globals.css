@@ -53,3 +53,17 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom wallet adapter button styles */
+.wallet-adapter-button-trigger .wallet-adapter-button {
+  @apply !bg-primary hover:!bg-primary/90 !text-primary-foreground !border-0 !rounded-md !text-sm !py-2 !px-3 !font-medium !w-full !justify-center;
+  font-family: inherit;
+}
+
+.wallet-adapter-button-trigger .wallet-adapter-button:not([disabled]):hover {
+  @apply !bg-primary/90;
+}
+
+.wallet-adapter-button[disabled] {
+  @apply !opacity-50 !cursor-not-allowed;
+}

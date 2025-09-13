@@ -20,6 +20,8 @@ interface User {
   id: string
   wallet_address: string
   username: string
+  total_rewards_earned?: number
+  total_shields_received?: number
 }
 
 interface UserContextType {
