@@ -5,11 +5,12 @@ import { useParams } from "next/navigation"
 import { Layout } from "@/components/layout"
 import { TweetFeed } from "@/components/tweet-feed"
 import { useUser } from "@/contexts/WalletContext"
-import { ArrowLeft, CalendarDays, MessageSquare, Heart, Users, Trophy, Star, ExternalLink, UserPlus, UserMinus, Wallet } from "lucide-react"
+import { ArrowLeft, CalendarDays, MessageSquare, Heart, Users, Trophy, Star, ExternalLink, UserPlus, UserMinus, Wallet, Edit2, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 
@@ -67,6 +68,9 @@ export default function ProfilePage() {
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
   const [isLoadingNFTs, setIsLoadingNFTs] = useState(true)
   const [isFollowLoading, setIsFollowLoading] = useState(false)
+  const [isEditingBio, setIsEditingBio] = useState(false)
+  const [bioText, setBioText] = useState("")
+  const [isSavingBio, setIsSavingBio] = useState(false)
   const { user } = useUser()
 
   useEffect(() => {
@@ -181,6 +185,46 @@ export default function ProfilePage() {
     } finally {
       setIsFollowLoading(false)
     }
+  }
+
+  const handleEditBio = () => {
+    setBioText(profileUser?.bio || "")
+    setIsEditingBio(true)
+  }
+
+  const handleSaveBio = async () => {
+    if (!user || !profileUser) return
+    
+    setIsSavingBio(true)
+    try {
+      const response = await fetch(`/api/users/${profileUser.username}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          bio: bioText,
+          requester_username: user.username 
+        }),
+      })
+
+      if (response.ok) {
+        const updatedUser = await response.json()
+        setProfileUser(prev => prev ? { ...prev, bio: bioText } : null)
+        setIsEditingBio(false)
+      } else {
+        console.error('Failed to update bio:', response.status)
+      }
+    } catch (error) {
+      console.error('Error updating bio:', error)
+    } finally {
+      setIsSavingBio(false)
+    }
+  }
+
+  const handleCancelBio = () => {
+    setBioText("")
+    setIsEditingBio(false)
   }
 
   const handleLikePost = async (id: string) => {
@@ -309,9 +353,80 @@ export default function ProfilePage() {
                     </button>
                   </div>
                 )}
-                {profileUser.bio && (
-                  <p className="mt-2 text-sm">{profileUser.bio}</p>
-                )}
+                
+                {/* Bio Section */}
+                <div className="mt-3">
+                  {isOwnProfile && !isEditingBio && (
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        {profileUser.bio ? (
+                          <p className="text-sm">{profileUser.bio}</p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">Add a bio to tell others about yourself</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleEditBio}
+                        className="ml-2 h-6 w-6 p-0"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {isOwnProfile && isEditingBio && (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={bioText}
+                        onChange={(e) => setBioText(e.target.value)}
+                        placeholder="Tell others about yourself..."
+                        className="text-sm resize-none"
+                        rows={3}
+                        maxLength={160}
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {bioText.length}/160
+                        </span>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancelBio}
+                            disabled={isSavingBio}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={handleSaveBio}
+                            disabled={isSavingBio}
+                          >
+                            {isSavingBio ? (
+                              <div className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent mr-1" />
+                            ) : (
+                              <Check className="h-3 w-3 mr-1" />
+                            )}
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!isOwnProfile && profileUser.bio && (
+                    <p className="text-sm">{profileUser.bio}</p>
+                  )}
+                  
+                  {!isOwnProfile && !profileUser.bio && (
+                    <p className="text-sm text-muted-foreground italic">No bio added yet</p>
+                  )}
+                </div>
+                
                 <div className="flex items-center space-x-1 mt-2 text-xs text-muted-foreground">
                   <CalendarDays className="h-3 w-3" />
                   <span>Joined {formatDate(profileUser.created_at)}</span>

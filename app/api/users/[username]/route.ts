@@ -33,3 +33,40 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { username: string } }
+) {
+  if (!supabase) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
+  }
+
+  try {
+    const { username } = params
+    const { bio, requester_username } = await request.json()
+
+    // Check if the requester is the profile owner
+    if (requester_username !== username) {
+      return NextResponse.json({ error: 'Unauthorized to edit this profile' }, { status: 403 })
+    }
+
+    // Update user bio
+    const { data: updatedUser, error } = await supabase
+      .from('users')
+      .update({ bio })
+      .eq('username', username)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating user bio:', error)
+      return NextResponse.json({ error: 'Failed to update bio' }, { status: 500 })
+    }
+
+    return NextResponse.json(updatedUser)
+  } catch (error) {
+    console.error('Error in update user profile:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
