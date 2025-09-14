@@ -122,15 +122,6 @@ export default function Home() {
   return (
     <Layout>
       <div className="flex-1 border-x border-border max-w-2xl">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
-          <h1 className="text-xl font-bold p-4">Defess v3</h1>
-        </div>
-        
-        {/* Wallet Connection Section */}
-        <div className="p-4 border-b border-border">
-          <SolanaConnectButton />
-        </div>
-
         {!user ? (
           <div className="p-8 text-center">
             <h2 className="text-lg font-semibold mb-2">Connect Your Wallet</h2>

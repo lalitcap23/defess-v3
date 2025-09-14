@@ -96,7 +96,13 @@ export default function SolanaConnectButton() {
   return (
     <div className="flex flex-col gap-4">
       <div className="wallet-adapter-button-wrapper">
-        <WalletMultiButton className="!bg-purple-600 hover:!bg-purple-700" />
+        <WalletMultiButton 
+          className="!bg-purple-600 hover:!bg-purple-700"
+          style={{
+            fontSize: '0px',
+            color: 'transparent'
+          }}
+        />
       </div>
 
       {/* Username Setup Dialog */}

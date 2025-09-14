@@ -3,7 +3,7 @@ import './globals.css'
 import { WalletContextProvider } from '@/contexts/WalletContext'
 
 export const metadata: Metadata = {
-  title: 'Defess v3',
+  title: 'Defess ',
   description: 'Decentralized social platform on Solana',
   generator: 'v0.dev',
 }
