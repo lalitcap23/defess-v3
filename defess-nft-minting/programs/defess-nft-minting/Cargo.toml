@@ -16,11 +16,7 @@ no-idl = []
 no-log-ix-name = []
 idl-build = ["anchor-lang/idl-build"]
 
+
 [dependencies]
 anchor-lang = "0.31.1"
-anchor-spl = { version = "0.31.1", features = ["metadata", "idl-build"] }
-mpl-token-metadata = "5"
-spl-token-2022 = "3"
-spl-tlv-account-resolution = "0.6.3"
-spl-type-length-value = "0.4.3"
-spl-pod = "0.2.2"
+anchor-spl = "0.31.1"

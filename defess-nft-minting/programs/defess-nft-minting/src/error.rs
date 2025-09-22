@@ -16,4 +16,19 @@ pub enum ErrorCode {
     
     #[msg("No posts found for the specified day")]
     NoPostsForDay,
+
+    #[msg("Invalid authority - only collection authority can perform this action")]
+    InvalidAuthority,
+
+    #[msg("Invalid period timestamp - must be in past and aligned to 30-minute periods")]
+    InvalidPeriod,
+
+    #[msg("Invalid username provided")]
+    InvalidUsername,
+
+    #[msg("Invalid post ID provided")]
+    InvalidPostId,
+
+    #[msg("Invalid like count - must be greater than 0")]
+    InvalidLikeCount,
 }

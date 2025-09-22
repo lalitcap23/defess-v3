@@ -15,22 +15,42 @@ declare_id!("8QYJMZkM5fExjczQxJa567F9c8fu5PqR8rN5jeR5MNFM");
 pub mod defess_nft_minting {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
-    }
+  
 
     pub fn initialize_collection(ctx: Context<InitializeCollection>) -> Result<()> {
-        initialize_collection::handler(ctx)
+        ctx.accounts.initialize(&ctx.bumps)
     }
 
-    pub fn mint_daily_winner_nft(
-        ctx: Context<MintDailyWinnerNFT>, 
-        day_timestamp: i64,
+    pub fn select_period_winner(
+        ctx: Context<SelectPeriodWinner>,
+        period_timestamp: i64,
+        winner_username: String,
+        post_id: String,
+        like_count: u64,
+    ) -> Result<()> {
+        ctx.accounts.select_winner(
+            period_timestamp,
+            winner_username,
+            post_id,
+            like_count,
+            &ctx.bumps,
+        )
+    }
+
+    pub fn mint_winner_30min_nft(
+        ctx: Context<MintWinner30MinNFT>, 
+        period_timestamp: i64,
         post_id: String,
         username: String,
         like_count: u64,
         nft_bump: u8,
     ) -> Result<()> {
-        mint_daily_winner_nft::handler(ctx, day_timestamp, post_id, username, like_count, nft_bump)
+        ctx.accounts.mint_nft(
+            period_timestamp,
+            post_id,
+            username,
+            like_count,
+            nft_bump,
+        )
     }
 }

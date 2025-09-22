@@ -5,6 +5,7 @@ pub struct NFTCollection {
     pub authority: Pubkey,
     pub collection_name: String,
     pub total_minted: u64,
+    pub total_periods: u64,
     pub created_at: i64,
     pub bump: u8,
 }
@@ -14,6 +15,7 @@ impl NFTCollection {
         32 + // authority pubkey
         4 + 32 + // collection_name string (max 32 chars)
         8 + // total_minted u64
+        8 + // total_periods u64
         8 + // created_at i64
         1; // bump u8
 }
@@ -25,7 +27,7 @@ pub struct DefessNFT {
     pub winner_username: String,
     pub like_count: u64,
     pub minted_at: i64,
-    pub day_timestamp: i64,
+    pub period_timestamp: i64,
     pub bump: u8,
 }
 
@@ -36,13 +38,13 @@ impl DefessNFT {
         4 + 32 + // winner_username string (max 32 chars)
         8 + // like_count u64
         8 + // minted_at i64
-        8 + // day_timestamp i64
+        8 + // period_timestamp i64
         1; // bump u8
 }
 
 #[account]
-pub struct DailyWinner {
-    pub day_timestamp: i64,
+pub struct Winner30Min {
+    pub period_timestamp: i64,
     pub winner_username: String,
     pub post_id: String,
     pub like_count: u64,
@@ -50,9 +52,9 @@ pub struct DailyWinner {
     pub bump: u8,
 }
 
-impl DailyWinner {
+impl Winner30Min {
     pub const LEN: usize = 8 + // discriminator
-        8 + // day_timestamp i64
+        8 + // period_timestamp i64
         4 + 32 + // winner_username string (max 32 chars)
         4 + 64 + // post_id string (max 64 chars)
         8 + // like_count u64

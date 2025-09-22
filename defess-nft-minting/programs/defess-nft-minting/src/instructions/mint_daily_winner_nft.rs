@@ -6,8 +6,8 @@ use anchor_spl::{
 use crate::state::{NFTCollection, DefessNFT};
 
 #[derive(Accounts)]
-#[instruction(day_timestamp: i64, post_id: String)]
-pub struct MintDailyWinnerNFT<'info> {
+#[instruction(period_timestamp: i64, post_id: String)]
+pub struct MintWinner30MinNFT<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
 
@@ -53,59 +53,61 @@ pub struct MintDailyWinnerNFT<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(
-    ctx: Context<MintDailyWinnerNFT>, 
-    day_timestamp: i64,
-    post_id: String,
-    username: String,
-    like_count: u64,
-    nft_bump: u8,
-) -> Result<()> {
-    let collection_info = ctx.accounts.collection.to_account_info();
-    let collection_bump = ctx.accounts.collection.bump;
-    
-    let collection = &mut ctx.accounts.collection;
-    let nft_account = &mut ctx.accounts.nft_account;
-    
-    // Initialize NFT account data
-    nft_account.collection = collection.key();
-    nft_account.winner_post_id = post_id;
-    nft_account.winner_username = username;
-    nft_account.like_count = like_count;
-    nft_account.minted_at = Clock::get()?.unix_timestamp;
-    nft_account.day_timestamp = day_timestamp;
-    nft_account.bump = nft_bump;
+impl<'info> MintWinner30MinNFT<'info> {
+    pub fn mint_nft(
+        &mut self,
+        period_timestamp: i64,
+        post_id: String,
+        username: String,
+        like_count: u64,
+        nft_bump: u8,
+    ) -> Result<()> {
+        let collection_info = self.collection.to_account_info();
+        let collection_bump = self.collection.bump;
+        
+        let collection = &mut self.collection;
+        let nft_account = &mut self.nft_account;
+        
+        // Initialize NFT account data
+        nft_account.collection = collection.key();
+        nft_account.winner_post_id = post_id;
+        nft_account.winner_username = username;
+        nft_account.like_count = like_count;
+        nft_account.minted_at = Clock::get()?.unix_timestamp;
+        nft_account.period_timestamp = period_timestamp;
+        nft_account.bump = nft_bump;
 
-    // Create collection seeds for signing
-    let collection_seeds = &[
-        b"collection".as_ref(),
-        &[collection_bump],
-    ];
+        // Create collection seeds for signing
+        let collection_seeds = &[
+            b"collection".as_ref(),
+            &[collection_bump],
+        ];
 
-    // Mint 1 NFT token to winner's account
-    mint_to(
-        CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
-            MintTo {
-                mint: ctx.accounts.nft_mint.to_account_info(),
-                to: ctx.accounts.winner_token_account.to_account_info(),
-                authority: collection_info,
-            },
-            &[collection_seeds],
-        ),
-        1,
-    )?;
+        // Mint 1 NFT token to winner's account
+        mint_to(
+            CpiContext::new_with_signer(
+                self.token_program.to_account_info(),
+                MintTo {
+                    mint: self.nft_mint.to_account_info(),
+                    to: self.winner_token_account.to_account_info(),
+                    authority: collection_info,
+                },
+                &[collection_seeds],
+            ),
+            1,
+        )?;
 
-    // Update collection stats
-    collection.total_minted += 1;
+        // Update collection stats
+        collection.total_minted += 1;
 
-    msg!(
-        "NFT minted for daily winner {} on day {} with {} likes. Mint: {}",
-        nft_account.winner_username,
-        day_timestamp,
-        like_count,
-        ctx.accounts.nft_mint.key()
-    );
+        msg!(
+            "NFT minted for 30-min winner {} on period {} with {} likes. Mint: {}",
+            nft_account.winner_username,
+            period_timestamp,
+            like_count,
+            self.nft_mint.key()
+        );
 
-    Ok(())
+        Ok(())
+    }
 }

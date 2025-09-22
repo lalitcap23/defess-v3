@@ -1,8 +1,6 @@
-use anchor_lang::prelude::*;
-
-pub const SECONDS_IN_DAY: i64 = 86400;
+pub const SECONDS_IN_PERIOD: i64 = 1800; // 30 minutes = 1800 seconds
 pub const COLLECTION_SEED: &[u8] = b"collection";
-pub const DAILY_WINNER_SEED: &[u8] = b"daily_winner";
+pub const WINNER_30MIN_SEED: &[u8] = b"winner_30min";
 pub const NFT_SEED: &[u8] = b"nft";
 
 // Metadata URI base
@@ -13,10 +11,9 @@ pub const COLLECTION_URI: &str = "https://defess.com/metadata/collection";
 pub const COLLECTION_NAME: &str = "Defess Daily Winners";
 pub const COLLECTION_SYMBOL: &str = "DDW";
 
-// Helper function to get day timestamp (midnight UTC)
-pub fn get_day_timestamp(unix_timestamp: i64) -> i64 {
-    (unix_timestamp / SECONDS_IN_DAY) * SECONDS_IN_DAY
+// Helper function to get period timestamp (30-min periods from midnight UTC)
+pub fn get_period_timestamp(unix_timestamp: i64) -> i64 {
+    (unix_timestamp / SECONDS_IN_PERIOD) * SECONDS_IN_PERIOD
 }
 
-#[constant]
 pub const SEED: &str = "anchor";
