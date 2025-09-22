@@ -3,7 +3,7 @@ use anchor_spl::{
     token::{Mint, Token},
     associated_token::AssociatedToken,
 };
-use crate::state::*;
+use crate::state::NFTCollection;
 
 #[derive(Accounts)]
 pub struct InitializeCollection<'info> {
@@ -37,10 +37,11 @@ pub struct InitializeCollection<'info> {
 pub fn handler(ctx: Context<InitializeCollection>) -> Result<()> {
     let collection = &mut ctx.accounts.collection;
     collection.authority = ctx.accounts.authority.key();
-    collection.collection_mint = ctx.accounts.collection_mint.key();
+    collection.collection_name = "Daily Winners NFT Collection".to_string();
     collection.total_minted = 0;
+    collection.created_at = Clock::get()?.unix_timestamp;
     collection.bump = ctx.bumps.collection;
 
-    msg!("Collection initialized with mint: {}", collection.collection_mint);
+    msg!("Collection initialized: {}", collection.collection_name);
     Ok(())
 }

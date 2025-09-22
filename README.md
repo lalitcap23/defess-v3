@@ -1,6 +1,6 @@
 # 💬 Defess – A Platform to Leverage Your Failure
 
-_Defess_ (DeFi + Confess) is a decentralized, anonymous social platform that empowers users to share their failures and vulnerable moments freely. By embracing transparency and community validation, the platform transforms setbacks into sources of strength. Built using Soroban smart contracts, MongoDB, and Web3 integrations, Defess gamifies honesty with token rewards and NFT incentives—building a new form of digital credibility.
+_Defess_ (DeFi + Confess) is a decentralized,  social platform that empowers users to share their failures and vulnerable moments freely. By embracing transparency and community validation, the platform transforms setbacks into sources of strength. Built using solana  smart contracts, supabase db, and Web3 integrations, Defess gamifies honesty with token rewards and NFT incentives—building a new form of digital credibility.
 
 ---
 
