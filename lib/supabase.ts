@@ -1,20 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Temporarily hard-code for testing (REMOVE IN PRODUCTION)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://osnkoxqnfbgaquclgugb.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zbmtveHFuZmJnYXF1Y2xndWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzE4NzgsImV4cCI6MjA3MzI0Nzg3OH0.bCHSRbQz5u1bPbExHwseYSYR6bOGbcJgicXVmPFCq-U'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// Debug environment variables
-console.log('🔧 Environment variables check:', {
-  hasUrl: !!supabaseUrl,
-  hasKey: !!supabaseAnonKey,
-  url: supabaseUrl ? `${supabaseUrl.slice(0, 20)}...` : 'missing',
-  key: supabaseAnonKey ? `${supabaseAnonKey.slice(0, 20)}...` : 'missing',
-  fromEnv: {
-    url: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-    key: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  }
-})
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Missing Supabase environment variables. Please check your .env file contains:\n' +
+    '- NEXT_PUBLIC_SUPABASE_URL\n' +
+    '- NEXT_PUBLIC_SUPABASE_ANON_KEY'
+  )
+}
 
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
