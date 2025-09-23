@@ -37,20 +37,10 @@ pub mod defess_nft_minting {
         )
     }
 
-    pub fn mint_winner_30min_nft(
-        ctx: Context<MintWinner30MinNFT>, 
+    pub fn mint_winner_nft(
+        ctx: Context<MintWinnerNFT>, 
         period_timestamp: i64,
-        post_id: String,
-        username: String,
-        like_count: u64,
-        nft_bump: u8,
     ) -> Result<()> {
-        ctx.accounts.mint_nft(
-            period_timestamp,
-            post_id,
-            username,
-            like_count,
-            nft_bump,
-        )
+        ctx.accounts.mint_nft(period_timestamp)
     }
 }

@@ -1,11 +1,11 @@
-pub const SECONDS_IN_PERIOD: i64 = 1800; // 30 minutes = 1800 seconds
+pub const SECONDS_IN_PERIOD: i64 = 1800; 
 pub const COLLECTION_SEED: &[u8] = b"collection";
 pub const WINNER_30MIN_SEED: &[u8] = b"winner_30min";
 pub const NFT_SEED: &[u8] = b"nft";
 
 // Metadata URI base
-pub const METADATA_URI_BASE: &str = "https://defess.com/nft";
-pub const COLLECTION_URI: &str = "https://defess.com/metadata/collection";
+pub const METADATA_URI_BASE: &str = "https://defess.com/nft";// i will have to  change it
+pub const COLLECTION_URI: &str = "https://defess.com/metadata/collection";// i will have to  change it 
 
 // Collection info
 pub const COLLECTION_NAME: &str = "Defess Daily Winners";
