@@ -1,0 +1,35 @@
+name: Process NFT Winnersname: Process NFT Winners
+
+
+
+on:on:
+
+  schedule:  schedule:
+
+    - cron: '*/30 * * * *'  # Every 30 minutes    - cron: '*/30 * * * *'
+
+  workflow_dispatch:         # Allow manual trigger  workflow_dispatch:
+
+
+
+jobs:jobs:
+
+  process-winners:  process-winners:
+
+    runs-on: ubuntu-latest    runs-on: ubuntu-latest
+
+        
+
+    steps:    steps:
+
+      - name: Process Period Winners      - name: Process NFT Winners
+
+        run: |        run: |
+
+          curl -X POST \          curl -X POST \
+
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+
+            -H "Content-Type: application/json" \            -H "Content-Type: application/json" \
+
+            "${{ secrets.NEXT_PUBLIC_APP_URL }}/api/jobs/process-period"            ${{ secrets.NEXT_PUBLIC_APP_URL }}/api/jobs/process-period
